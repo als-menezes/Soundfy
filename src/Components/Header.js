@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom/cjs/react-router-dom.min';
 import { getUser } from '../services/userAPI';
 import Loading from './Loading';
@@ -35,11 +34,5 @@ class Header extends Component {
     );
   }
 }
-
-Header.propTypes = {
-  match: PropTypes.objectOf(
-    PropTypes.string,
-  ),
-}.isRequired;
 
 export default Header;
