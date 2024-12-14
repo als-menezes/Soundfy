@@ -40,7 +40,7 @@ class Search extends Component {
             ? <Loading />
             : (
               <button
-                type="button"
+                type="submit"
                 data-testid="search-artist-button"
                 disabled={ searchInput.length < 2 ? true : null }
                 onClick={ this.handleSearchButton }
