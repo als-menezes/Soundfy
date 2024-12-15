@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Loading from './Loading';
-import { addSong } from '../services/favoriteSongsAPI';
+import { addSong, getFavoriteSongs, removeSong } from '../services/favoriteSongsAPI';
 
 class MusicCard extends Component {
   state = {
@@ -9,41 +9,62 @@ class MusicCard extends Component {
     isChecked: false,
   };
 
-  handleCheck = ({ target: { checked } }) => {
-    if (checked) {
-      this.setState({ isChecked: checked }, this.handleChange);
-    }
-  };
+  componentDidMount() {
+    this.favoriteMusic();
+  }
 
-  handleChange(checked) {
+  handleChange() {
+    const { track, removeFavList } = this.props;
+    const { check } = this.state;
     this.setState({ isLoading: true }, async () => {
-      await addSong(checked);
-      this.setState({ isLoading: false });
+      if (check) {
+        await addSong(track);
+      } else {
+        await removeSong(track);
+        if (removeFavList) removeFavList(track.trackId);
+        this.setState({ isLoading: false });
+      }
     });
   }
 
+  onCheckedChange = ({ target }) => {
+    const { checked } = target;
+    this.setState(
+      { check: checked },
+      this.handleChange,
+    );
+  };
+
+  favoriteMusic = async () => {
+    const { track } = this.props;
+    const favorite = await getFavoriteSongs();
+    this.setState({
+      isChecked: favorite.some((fav) => fav.trackName === track.trackName),
+    });
+  };
+
   render() {
-    const { trackName, previewUrl, trackId } = this.props;
+    const { track } = this.props;
     const { isLoading, isChecked } = this.state;
     return (
       <div>
         {isLoading ? <Loading /> : (
           <>
-            <h2>{trackName}</h2>
-            <audio data-testid="audio-component" src={ previewUrl } controls>
+            <h2>{track.trackName}</h2>
+            <audio data-testid="audio-component" src={ track.previewUrl } controls>
               <track kind="captions" />
-              O seu navegador não suporta o elemento
+              O seu navegador não suporta o trackemento
               {' '}
               <code>audio</code>
               .
             </audio>
-            <label htmlFor={ trackId }>
+            <label htmlFor={ track.trackId }>
               <p>Favorita</p>
               <input
-                data-testid={ `checkbox-music-${trackId}` }
+                data-testid={ `checkbox-music-${track.trackId}` }
                 type="checkbox"
-                id={ trackId }
-                onChange={ this.handleCheck }
+                id={ track.trackId }
+                onChange={ this.onCheckedChange }
                 checked={ isChecked }
               />
             </label>
